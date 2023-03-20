@@ -7,9 +7,7 @@ namespace Quiz
     {
         static void Main()
         {
-            Console.WriteLine();
-            string path = "bank.txt";
-            string[] str =SplitFileByString(path);
+            string[] str =SplitFileByString("bank.txt");
         }
         static string[] SplitFileByString(string path)
         {
@@ -19,5 +17,11 @@ namespace Quiz
                 return s[..(s.Length-1)];
             }
         }
+        static string GetQuestions(string s) => 
+            Regex.Match(s, @".*?\?").ToString();
+        static string GetAnswers(string s) => 
+            Regex.Match(s, @"\|\|.*").ToString();
+        static string[] ShowAnswers(string s)=>
+            Regex.Matches(s, @"(?<=\|\|).*?(?=\=)").Select((x)=>x.ToString()).ToArray();
     }
 } 
