@@ -8,13 +8,14 @@ namespace Quiz
         static void Main()
         {
             Console.WriteLine();
-            var s = "bank.txt";
+            string path = "bank.txt";
+            string[] str =SplitFileByString(path);
         }
         static string[] SplitFileByString(string path)
         {
             using (var rs = new StreamReader(File.Open(path, FileMode.Open)))
             { 
-                var s = Regex.Split(rs.ReadToEnd(), @"\n").Select(x => x.ToString()).ToArray();
+                string[] s = Regex.Split(rs.ReadToEnd(), @"\n").Select(x => x.ToString()).ToArray();
                 return s[..(s.Length-1)];
             }
         }
