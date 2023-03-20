@@ -7,21 +7,73 @@ namespace Quiz
     {
         static void Main()
         {
-            string[] str =SplitFileByString("bank.txt");
+            StartGame();
         }
         static string[] SplitFileByString(string path)
         {
             using (var rs = new StreamReader(File.Open(path, FileMode.Open)))
-            { 
+            {
                 string[] s = Regex.Split(rs.ReadToEnd(), @"\n").Select(x => x.ToString()).ToArray();
-                return s[..(s.Length-1)];
+                return s[..(s.Length - 1)];
             }
         }
-        static string GetQuestions(string s) => 
+        static string GetQuestions(string s) =>
             Regex.Match(s, @".*?\?").ToString();
-        static string GetAnswers(string s) => 
-            Regex.Match(s, @"\|\|.*").ToString();
-        static string[] ShowAnswers(string s)=>
-            Regex.Matches(s, @"(?<=\|\|).*?(?=\=)").Select((x)=>x.ToString()).ToArray();
+        static string[] GetAnswers(string s) =>
+            Regex.Matches(s, @"(?<=\|\|).*?(?=\=)").Select(x => x.ToString()).ToArray();
+        static int RightAnswer(string s) =>
+            Regex.Matches(s, @"(?<=\=\>).*?(?=[\|\n])").Select(x => x.ToString()).ToList().FindIndex(x => x == "True") + 1;
+        static int GetPlayerAnswer()
+        {
+            var ans = Console.ReadLine();
+            while (ans.Length > 1 || !"123345".Contains(ans) || ans == "")
+            {
+                Console.WriteLine("Вы ввели некорректный ответ! Пожалуйста, введи ответ правильно.");
+                ans = Console.ReadLine();
+            }
+            return int.Parse(ans);
+        }
+        static int Dopomoga(string[] ans, int chek)
+        {
+            var r = new Random();
+            var num = r.Next(1, 5);
+            while (num == chek)
+                num = r.Next(1, 5);
+            if (num < chek)
+                Console.WriteLine($"{num}) {ans[num - 1]}   {chek}) {ans[chek - 1]}");
+            else
+                Console.WriteLine($"{chek}) {ans[chek - 1]}   {num}) {ans[num - 1]}");
+            var a = GetPlayerAnswer();
+            while (a != num && a != chek && a == 5)
+            {
+                Console.WriteLine("Вы уже использовали помощь! Введите ответ из предложенных вариантов.");
+                a = GetPlayerAnswer();
+            }
+            return a;
+        }
+        static void StartGame()
+        {
+            Console.WriteLine();
+            string[] str = SplitFileByString("bank.txt");
+            string[] answer = new string[4];
+            int chek;
+            int score = 0;
+            int playerAns;
+            for (int i = 0; i < str.Length; i++)
+            {
+                Console.WriteLine($"Вопрос №{i + 1}!");
+                Console.WriteLine(GetQuestions(str[i]));
+                answer = GetAnswers(str[i]);
+                chek = RightAnswer(str[i]);
+                for (int j = 0; j < answer.Length; j++)
+                    Console.Write($"{j + 1}) {answer[j]}   ");
+                Console.WriteLine();
+                Console.WriteLine("Ваш ответ?");
+                playerAns = GetPlayerAnswer();
+                if (playerAns == 5)
+                    playerAns = Dopomoga(answer, chek);
+                Console.WriteLine(playerAns);
+            }
+        }
     }
-} 
+}
