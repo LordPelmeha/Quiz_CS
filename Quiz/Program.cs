@@ -18,12 +18,24 @@ namespace Quiz
                 return s[..(s.Length - 1)];
             }
         }
+        /// <summary>
+        /// Находит и возвращает вопрос
+        /// </summary>
         static string GetQuestions(string s) =>
             Regex.Match(s, @".*?\?").ToString();
+        /// <summary>
+        /// Находит и возвращает варианты ответа
+        /// </summary>
         static string[] GetAnswers(string s) =>
             Regex.Matches(s, @"(?<=\|\|).*?(?=\=)").Select(x => x.ToString()).ToArray();
+        /// <summary>
+        /// Возвращает номер правильного ответа
+        /// </summary>
         static int RightAnswer(string s) =>
             Regex.Matches(s, @"(?<=\=\>)\w+").Select(x => x.ToString()).ToList().FindIndex(x => x == "True") + 1;
+        /// <summary>
+        /// Считывает ответ пользователя
+        /// </summary>
         static int GetPlayerAnswer(int count)
         {
             var ans = Console.ReadLine();
@@ -39,6 +51,9 @@ namespace Quiz
             }
             return int.Parse(ans);
         }
+        /// <summary>
+        /// Вызов помощи
+        /// </summary>
         static int Dopomoga(string[] ans, int chek)
         {
             var r = new Random();
@@ -57,9 +72,17 @@ namespace Quiz
             }
             return a;
         }
+        /// <summary>
+        /// Игра
+        /// </summary>
         static void StartGame()
         {
-            Console.WriteLine();
+            Console.WriteLine("Добро пожаловать в викторину! Правила просты - " +
+                "чем больше приавильных ответов вы дадите, тем больше баллов получите. Для того, чтобы ответить, " +
+                "необходимо ввести номер варианта ответа. Также у вас есть возможность дважды за игру вызвать помощь, " +
+                "которая уберёт два неправильных варианта ответа. Для её вызова, необходимо будает нажать цифру '5'. " +
+                "После завершения игры, ваш рузультат будет внесён в таблицу лидеров.");
+
             string[] str = SplitFileByString("bank.txt");
             string[] answer = new string[4];
             int chek;
@@ -68,6 +91,7 @@ namespace Quiz
             int dopomogaCount = 2;
             for (int i = 0; i < str.Length; i++)
             {
+                Console.WriteLine();
                 Console.WriteLine($"Вопрос №{i + 1}!");
                 Console.WriteLine(GetQuestions(str[i]));
                 answer = GetAnswers(str[i]);
@@ -100,6 +124,7 @@ namespace Quiz
                         Console.WriteLine("Ну ответили неправильно и ответили. Чего бубнеть то?");
                 }
             }
+            Console.WriteLine();
             Console.WriteLine($"Поздравляем! Вы завершили викторину. Ваш результат - {score} баллов из 120. " +
                 $"Для записи в таблицу лидеров введите, как вас зовут.");
             string name = Console.ReadLine();
