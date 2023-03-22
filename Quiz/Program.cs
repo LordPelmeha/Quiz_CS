@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.IO;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 
 namespace Quiz
@@ -22,7 +23,7 @@ namespace Quiz
         static string[] GetAnswers(string s) =>
             Regex.Matches(s, @"(?<=\|\|).*?(?=\=)").Select(x => x.ToString()).ToArray();
         static int RightAnswer(string s) =>
-            Regex.Matches(s, @"(?<=\=\>).*?(?=[\|\n])").Select(x => x.ToString()).ToList().FindIndex(x => x == "True") + 1;
+            Regex.Matches(s, @"(?<=\=\>)\w+").Select(x => x.ToString()).ToList().FindIndex(x => x == "True") + 1;
         static int GetPlayerAnswer(int count)
         {
             var ans = Console.ReadLine();
@@ -33,7 +34,7 @@ namespace Quiz
             }
             while (count == 0 && int.Parse(ans) == 5)
             {
-                Console.WriteLine("Вы использовали все помощи! Введите ответ на вопрос.");
+                Console.WriteLine("Вы использовали всю помощь! Введите ответ на вопрос.");
                 ans = Console.ReadLine();
             }
             return int.Parse(ans);
@@ -49,7 +50,7 @@ namespace Quiz
             else
                 Console.WriteLine($"{chek}) {ans[chek - 1]}   {num}) {ans[num - 1]}");
             var a = GetPlayerAnswer(2);
-            while (a != num && a != chek && a == 5)
+            while (a != num && a != chek || a == 5)
             {
                 Console.WriteLine("Вы уже использовали помощь! Введите ответ из предложенных вариантов.");
                 a = GetPlayerAnswer(2);
@@ -76,12 +77,12 @@ namespace Quiz
                 Console.WriteLine();
                 Console.WriteLine("Ваш ответ?");
                 playerAns = GetPlayerAnswer(dopomogaCount);
-                if (playerAns == 5)
+                if (playerAns == 5 && dopomogaCount > 0)
                 {
                     playerAns = Dopomoga(answer, chek);
                     if (playerAns == chek)
                     {
-                        dopomogaCount--;
+                        --dopomogaCount;
                         score += 5;
                         Console.WriteLine("Верный ответ дали вы");
                     }
@@ -99,6 +100,15 @@ namespace Quiz
                         Console.WriteLine("Ну ответили неправильно и ответили. Чего бубнеть то?");
                 }
             }
+            Console.WriteLine($"Поздравляем! Вы завершили викторину. Ваш результат - {score} баллов из 120. " +
+                $"Для записи в таблицу лидеров введите, как вас зовут.");
+            string name = Console.ReadLine();
+            while (name == "")
+            {
+                Console.WriteLine("Пожалуйста, введите своё имя!");
+                name = Console.ReadLine();
+            }
+            File.AppendAllLines("leaderboard.txt", new string[] { $"{name} - {score}" });
         }
     }
 }
